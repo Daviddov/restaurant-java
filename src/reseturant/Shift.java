@@ -25,7 +25,7 @@ public class Shift {
 	private Cooker chaf;
 	private double shiftCash = 0;
 	private Menu menu;
-	private ArrayList<Dish> newResavtion = new ArrayList<Dish>();
+//	private ArrayList<Dish> newResavtion = new ArrayList<Dish>();
 
 	public Shift(String Shift, ArrayList<Workers> workers, ShiftManager shiftManager, Hostess hostess,
 			ArrayList<Table> tables, Menu menu) {
@@ -59,26 +59,33 @@ public class Shift {
 		Scanner in = new Scanner(System.in);
 		int input = in.nextInt();
 		handleChois(input);
-
 	}
 
 	private void handleChois(int input) {
 		switch (input) {
 		case 1: {
-			hostessMenu();
+			this.hostess.hostessMenu(tables, sitingCustomers, customersCount);
+			menu();
 			break;
 		}
 		case 2: {
-			shfitManegerMenu();
+			this.shfitManeger.shfitManegerMenu(shiftWorkers);
+			menu();
 			break;
 		}
 		case 3: {
 			Waiter waiter = chooseWaiter();
-			waiterMenu(waiter);
+			waiter.waiterMenu(tables, menu, allReservations, radyToTake, shiftCash);
+			menu();
 			break;
 		}
 		case 4: {
-			cookerMenu();
+			if(allReservations.size() > 0) {
+			chaf.cookerMenu(allReservations, radyToTake);
+			} else {
+				System.out.println("go to sleep you have nothig to do");
+			}
+			menu();
 			break;
 		}
 		case 5: {
@@ -94,72 +101,11 @@ public class Shift {
 //			menu();
 //			break;
 //		}
-
 		default:
 			menu();
 		}
 	}
-
-	private void hostessMenu() {
-		System.out.println(" 1. new costumers \n 2. show empty tables \n 3. exit");
-		Scanner in = new Scanner(System.in);
-		int input = in.nextInt();
-		handleHostessChois(input);
-	}
-
-	private void handleHostessChois(int input) {
-		Scanner in = new Scanner(System.in);
-		switch (input) {
-		case 1: {
-			System.out.println(" How many customers came?");
-			int input2 = in.nextInt();
-			sitCustomer(input2);
-			hostessMenu();
-			break;
-		}
-
-		case 2: {
-			printEmptyTable();
-			break;
-		}
-		case 3: {
-			menu();
-			break;
-		}
-
-		default:
-			hostessMenu();
-		}
-	}
-
-	private void shfitManegerMenu() {
-		System.out.println(" 1. assign wiater to table  \n 2.exit");
-		Scanner in = new Scanner(System.in);
-		int input = in.nextInt();
-		handleShfitManegerChois(input);
-	}
-
-	private void handleShfitManegerChois(int input) {
-		Scanner in = new Scanner(System.in);
-		switch (input) {
-		case 1: {
-			Waiter waiter = chooseWaiter();
-			printTables();
-			Table table = getTableByNumber();
-			shfitManeger.assignWaiterToTable(waiter, table);
-
-			shfitManegerMenu();
-			break;
-		}
-		case 2: {
-			menu();
-			break;
-		}
-		default:
-			shfitManegerMenu();
-		}
-	}
-
+	
 	private void printWaiters() {
 		for (int i = 0; i < shiftWorkers.size(); i++) {
 			if (shiftWorkers.get(i) instanceof Waiter) {
@@ -176,138 +122,6 @@ public class Shift {
 		return (Waiter) shiftWorkers.get(waiterNum);
 	}
 
-	private boolean haveSittingCostumer(String waiterName) {
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i).getWaiter().getName() == waiterName && !tables.get(i).isAvailable()) {
-				return true;
-			}
-		}
-		System.out.println("no costumers in your tables");
-		return false;
-	}
-
-	private void printTables() {
-		for (int i = 0; i < tables.size(); i++) {
-			System.out.println(i + ". table " + tables.get(i).getTableNumber());
-		}
-	}
-
-	private void printAllWaiterTables(String waiterName) {
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i).getWaiter().getName() == waiterName) {
-				System.out.println(i + ". table " + tables.get(i).getTableNumber());
-			}
-		}
-	}
-
-	private void printTakenWaiterTables(String waiterName) {
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i).getWaiter().getName() == waiterName && !tables.get(i).isAvailable()) {
-				System.out.println(i + ". table " + tables.get(i).getTableNumber());
-			}
-		}
-	}
-
-	private int chooseTable() {
-		Scanner in = new Scanner(System.in);
-		System.out.println("select table");
-		int tableNum = in.nextInt();
-		return tableNum;
-	}
-
-	private Table getTableByNumber() {
-		Scanner in = new Scanner(System.in);
-		System.out.println("select table");
-		int tableNum = in.nextInt();
-		return tables.get(tableNum);
-	}
-
-	private void waiterMenu(Waiter waiter) {
-//		Waiter waiter = chooseWaiter();
-		Scanner in = new Scanner(System.in);
-		if (haveSittingCostumer(waiter.getName())) {
-			System.out.println(
-					" 1. make resavetion \n 2.show rady dishes \n 3. take dishes to table \n 4.end diner \n 5. exit");
-			int input = in.nextInt();
-			handleWaiterChois(input, waiter);
-		} else {
-			menu();
-		}
-	}
-
-	private void handleWaiterChois(int input, Waiter waiter) {
-		Scanner in = new Scanner(System.in);
-		switch (input) {
-		case 1: {
-
-			printTakenWaiterTables(waiter.getName());
-			int tableNum = chooseTable();
-			showMenu(menu);
-			makeRasvation(tableNum);
-			waiterMenu(waiter);
-			break;
-		}
-		case 2: {
-			printRadyDishes(waiter.getName());
-			waiterMenu(waiter);
-			break;
-		}
-		case 3: {
-			takeRadyDishesToTable(waiter.getName());
-			waiterMenu(waiter);
-			break;
-		}
-		case 4: {
-			printTakenWaiterTables(waiter.getName());
-			int tableNum = chooseTable();
-			endOfMeal(tableNum);
-			waiterMenu(waiter);
-			System.out.println("table number " + tableNum + " finish");
-			break;
-		}
-		case 5: {
-			menu();
-			break;
-		}
-		default:
-			waiterMenu(waiter);
-		}
-	}
-
-	private void printRadyDishes(String waiterName) {
-		for (int i = 0; i < radyToTake.size(); i++) {
-			int tableNum = radyToTake.get(i).getTableNum();
-			String nameOfTableWaiter = tables.get(tableNum).getWaiter().getName();
-			if (nameOfTableWaiter == waiterName) {
-				ArrayList<Dish> radyDishesToTake = new ArrayList<Dish>();
-				radyDishesToTake = radyToTake.get(i).getDishes();
-
-				for (int j = 0; j < radyDishesToTake.size(); j++) {
-					System.out.println(
-							radyDishesToTake.get(j).getName() + " for table " + radyToTake.get(i).getTableNum());
-
-				}
-			}
-		}
-	}
-
-	private void takeRadyDishesToTable(String waiterName) {
-		for (int i = 0; i < radyToTake.size(); i++) {
-			int tableNum = radyToTake.get(i).getTableNum();
-			String nameOfTableWaiter = tables.get(tableNum).getWaiter().getName();
-			if (nameOfTableWaiter == waiterName) {
-				ArrayList<Dish> radyDishesToTake = new ArrayList<Dish>();
-				radyDishesToTake = radyToTake.get(i).getDishes();
-
-				for (int j = 0; j < radyDishesToTake.size(); j++) {
-					radyDishesToTake.get(j).setDone(true);
-					System.out.println(
-							radyDishesToTake.get(j).getName() + " taken to table " + radyToTake.get(i).getTableNum());
-				}
-			}
-			radyToTake.remove(i);
-		}
-	}
 
 	private void cookerMenu() {
 		Scanner in = new Scanner(System.in);
@@ -344,77 +158,7 @@ public class Shift {
 			System.out.println(dishesResevation.get(i).getName());
 		}
 	}
-
-	private void printEmptyTable() {
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i).isAvailable()) {
-				System.out.println(i + ". table" + tables.get(i).getTableNumber());
-			}
-		}
-	}
-
-	private void printTakenTable() {
-		for (int i = 0; i < tables.size(); i++) {
-			if (!tables.get(i).isAvailable()) {
-				System.out.println(i + ". table" + tables.get(i).getTableNumber());
-			}
-		}
-	}
-
-	private void showMenu(Menu menu) {
-		ArrayList<Dish> menuDishs = menu.getDishs();
-		for (int i = 0; i < menuDishs.size(); i++) {
-			System.out.println(i + "." + menuDishs.get(i).getName());
-		}
-	}
-
-	private void makeRasvation(int tableNum) {
-
-		addDishToResavtion(newResavtion);
-		Waiter tableWaiter = tables.get(tableNum).getWaiter();
-		tableWaiter.takeReservation(tables.get(tableNum), newResavtion);
-		allReservations.add(tables.get(tableNum).getReservation());
-	}
-
-	private void addDishToResavtion(ArrayList<Dish> newResavtion) {
-		System.out.println("choose a dish");
-		Scanner in = new Scanner(System.in);
-		int input = in.nextInt();
-		newResavtion.add((Dish) menu.getDishs().toArray()[input]);
-
-		System.out.println("Do you want another one \n 1. Yes \n 2. No");
-		input = in.nextInt();
-		if (input == 1) {
-			addDishToResavtion(newResavtion);
-		}
-	}
-
-	private void endOfMeal(int index) {
-//		int index = findTableIndexByNum(tableNum);
-		double totalPrice = tables.get(index).getReservation().getTotalPrice();
-		this.shiftCash += totalPrice;
-		System.out.println("the total price of table " + tables.get(index).getTableNumber() + " is " + totalPrice);
-		tables.get(index).cleanTable();
-	}
-
-	private int findTableIndexByNum(int tableNum) {
-		for (int i = 0; i < tables.size(); i++) {
-			if (tableNum == tables.get(i).getTableNumber()) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	private void sitCustomer(int newCustomers) {
-		Customer[] newsitCustomers;
-		newsitCustomers = new Customer[newCustomers];
-		newsitCustomers = hostess.sitCustomers(customers(newCustomers), tables);
-//update all sit customers
-		addSitingCustomers(newsitCustomers);
-
-	}
-
+	
 	public Customer[] customers(int num) {
 		Customer[] newCustomer = new Customer[num];
 		Customer customer;
@@ -425,23 +169,23 @@ public class Shift {
 		}
 		return newCustomer;
 	}
-
+	
 	public Customer[] getCustomers() {
 		return customers;
 	}
-
+	
 	public void setCustomers(Customer[] customers) {
 		this.customers = customers;
 	}
-
+	
 	public String getName() {
 		return name;
 	}
-
+	
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
 	private Cooker setChaf() {
 		for (int i = 0; i < shiftWorkers.size(); i++) {
 			if (shiftWorkers.get(i) instanceof Cooker) {
@@ -450,35 +194,302 @@ public class Shift {
 		}
 		return null;
 	}
-
+	
 	public ArrayList<Customer> getsitingCustomer() {
 		return sitingCustomers;
 	}
-
+	
 	public void setSitingCustomer(ArrayList<Customer> sitingCustomer) {
 		this.sitingCustomers = sitingCustomer;
 	}
-
+	
 	public void addSitingCustomers(Customer[] customers) {
 		for (int i = 0; i < customers.length; i++) {
 			sitingCustomers.add(customers[i]);
 		}
 	}
-
+	
 	public void addSitingCustomer(Customer customer) {
 		sitingCustomers.add(customer);
 	}
-
+	
 	public int getMAX_CUSTOMERS_sitS() {
 		return MAX_CUSTOMERS_sitS;
 	}
-
+	
 	public double getShiftCash() {
 		return shiftCash;
 	}
-
+	
 	public void setShiftCash(double restaurantCash) {
 		this.shiftCash = restaurantCash;
 	}
 
+//	private boolean haveSittingCostumer(String waiterName) {
+//		for (int i = 0; i < tables.size(); i++) {
+//			if (tables.get(i).getWaiter().getName() == waiterName && !tables.get(i).isAvailable()) {
+//				return true;
+//			}
+//		}
+//		System.out.println("no costumers in your tables");
+//		return false;
+//	}
+//	
+//
+//	private int chooseTable() {
+//		Scanner in = new Scanner(System.in);
+//		System.out.println("select table");
+//		int tableNum = in.nextInt();
+//		return tableNum;
+//	}
+
+//	private Table getTableByNumber() {
+//		Scanner in = new Scanner(System.in);
+//		System.out.println("select table");
+//		int tableNum = in.nextInt();
+//		return tables.get(tableNum);
+//	}
+
+//	private void waiterMenu(Waiter waiter) {
+////		Waiter waiter = chooseWaiter();
+//		Scanner in = new Scanner(System.in);
+//		if (haveSittingCostumer(waiter.getName())) {
+//			System.out.println(
+//					" 1. make resavetion \n 2.show rady dishes \n 3. take dishes to table \n 4.end diner \n 5. exit");
+//			int input = in.nextInt();
+//			handleWaiterChois(input, waiter);
+//		} else {
+//			menu();
+//		}
+//	}
+//
+//	private void handleWaiterChois(int input, Waiter waiter) {
+//		Scanner in = new Scanner(System.in);
+//		switch (input) {
+//		case 1: {
+//
+//			printTakenWaiterTables(waiter.getName());
+//			int tableNum = chooseTable();
+//			showMenu(menu);
+//			makeRasvation(tableNum);
+//			waiterMenu(waiter);
+//			break;
+//		}
+//		case 2: {
+//			printRadyDishes(waiter.getName());
+//			waiterMenu(waiter);
+//			break;
+//		}
+//		case 3: {
+//			takeRadyDishesToTable(waiter.getName());
+//			waiterMenu(waiter);
+//			break;
+//		}
+//		case 4: {
+//			printTakenWaiterTables(waiter.getName());
+//			int tableNum = chooseTable();
+//			endOfMeal(tableNum);
+//			waiterMenu(waiter);
+//			System.out.println("table number " + tableNum + " finish");
+//			break;
+//		}
+//		case 5: {
+//			menu();
+//			break;
+//		}
+//		default:
+//			waiterMenu(waiter);
+//		}
+//	}
+//
+//	private void printTakenWaiterTables(String waiterName) {
+//		for (int i = 0; i < tables.size(); i++) {
+//			if (tables.get(i).getWaiter().getName() == waiterName && !tables.get(i).isAvailable()) {
+//				System.out.println(i + ". table " + tables.get(i).getTableNumber());
+//			}
+//		}
+//	}
+//	
+//	private void printRadyDishes(String waiterName) {
+//		for (int i = 0; i < radyToTake.size(); i++) {
+//			int tableNum = radyToTake.get(i).getTableNum();
+//			String nameOfTableWaiter = tables.get(tableNum).getWaiter().getName();
+//			if (nameOfTableWaiter == waiterName) {
+//				ArrayList<Dish> radyDishesToTake = new ArrayList<Dish>();
+//				radyDishesToTake = radyToTake.get(i).getDishes();
+//
+//				for (int j = 0; j < radyDishesToTake.size(); j++) {
+//					System.out.println(
+//							radyDishesToTake.get(j).getName() + " for table " + radyToTake.get(i).getTableNum());
+//
+//				}
+//			}
+//		}
+//	}
+//
+//	private void takeRadyDishesToTable(String waiterName) {
+//		for (int i = 0; i < radyToTake.size(); i++) {
+//			int tableNum = radyToTake.get(i).getTableNum();
+//			String nameOfTableWaiter = tables.get(tableNum).getWaiter().getName();
+//			if (nameOfTableWaiter == waiterName) {
+//				ArrayList<Dish> radyDishesToTake = new ArrayList<Dish>();
+//				radyDishesToTake = radyToTake.get(i).getDishes();
+//
+//				for (int j = 0; j < radyDishesToTake.size(); j++) {
+//					radyDishesToTake.get(j).setDone(true);
+//					System.out.println(
+//							radyDishesToTake.get(j).getName() + " taken to table " + radyToTake.get(i).getTableNum());
+//				}
+//			}
+//			radyToTake.remove(i);
+//		}
+//	}
+
+//	private void printEmptyTable() {
+//		for (int i = 0; i < tables.size(); i++) {
+//			if (tables.get(i).isAvailable()) {
+//				System.out.println(i + ". table" + tables.get(i).getTableNumber());
+//			}
+//		}
+//	}
+
+//	private void printTakenTable() {
+//		for (int i = 0; i < tables.size(); i++) {
+//			if (!tables.get(i).isAvailable()) {
+//				System.out.println(i + ". table" + tables.get(i).getTableNumber());
+//			}
+//		}
+//	}
+
+//	private int findTableIndexByNum(int tableNum) {
+//		for (int i = 0; i < tables.size(); i++) {
+//			if (tableNum == tables.get(i).getTableNumber()) {
+//				return i;
+//			}
+//		}
+//		return -1;
+//	}
+
+//	private void sitCustomer(int newCustomers) {
+//		Customer[] newsitCustomers;
+//		newsitCustomers = new Customer[newCustomers];
+////		newsitCustomers = hostess.sitCustomers(customers(newCustomers), tables);
+////update all sit customers
+//		addSitingCustomers(newsitCustomers);
+//
+//	}
+
+//	private void hostessMenu() {
+//		System.out.println(" 1. new costumers \n 2. show empty tables \n 3. exit");
+//		Scanner in = new Scanner(System.in);
+//		int input = in.nextInt();
+//		handleHostessChois(input);
+//	}
+
+//	private void handleHostessChois(int input) {
+//		Scanner in = new Scanner(System.in);
+//		switch (input) {
+//		case 1: {
+//			System.out.println(" How many customers came?");
+//			int input2 = in.nextInt();
+//			sitCustomer(input2);
+//			hostessMenu();
+//			break;
+//		}
+//
+//		case 2: {
+//			printEmptyTable();
+//			break;
+//		}
+//		case 3: {
+//			menu();
+//			break;
+//		}
+//
+//		default:
+//			hostessMenu();
+//		}
+//	}
+//
+//	private void shfitManegerMenu() {
+//		System.out.println(" 1. assign wiater to table  \n 2.exit");
+//		Scanner in = new Scanner(System.in);
+//		int input = in.nextInt();
+//		handleShfitManegerChois(input);
+//	}
+//
+//	private void handleShfitManegerChois(int input) {
+//		Scanner in = new Scanner(System.in);
+//		switch (input) {
+//		case 1: {
+//			Waiter waiter = chooseWaiter();
+//			printTables();
+//			Table table = getTableByNumber();
+//			shfitManeger.assignWaiterToTable(waiter, table);
+//
+//			shfitManegerMenu();
+//			break;
+//		}
+//		case 2: {
+//			menu();
+//			break;
+//		}
+//		default:
+//			shfitManegerMenu();
+//		}
+//	}
+
+
+
+//	private void printTables() {
+//		for (int i = 0; i < tables.size(); i++) {
+//			System.out.println(i + ". table " + tables.get(i).getTableNumber());
+//		}
+//	}
+//
+//	private void printAllWaiterTables(String waiterName) {
+//		for (int i = 0; i < tables.size(); i++) {
+//			if (tables.get(i).getWaiter().getName() == waiterName) {
+//				System.out.println(i + ". table " + tables.get(i).getTableNumber());
+//			}
+//		}
+//	}
+
+	
+//
+//	private void showMenu(Menu menu) {
+//		ArrayList<Dish> menuDishs = menu.getDishs();
+//		for (int i = 0; i < menuDishs.size(); i++) {
+//			System.out.println(i + "." + menuDishs.get(i).getName());
+//		}
+//	}
+//
+//	private void makeRasvation(int tableNum) {
+//
+//		addDishToResavtion(newResavtion);
+//		Waiter tableWaiter = tables.get(tableNum).getWaiter();
+//		tableWaiter.takeReservation(tables.get(tableNum), newResavtion);
+//		allReservations.add(tables.get(tableNum).getReservation());
+//	}
+//
+//	private void addDishToResavtion(ArrayList<Dish> newResavtion) {
+//		System.out.println("choose a dish");
+//		Scanner in = new Scanner(System.in);
+//		int input = in.nextInt();
+//		newResavtion.add((Dish) menu.getDishs().toArray()[input]);
+//
+//		System.out.println("Do you want another one \n 1. Yes \n 2. No");
+//		input = in.nextInt();
+//		if (input == 1) {
+//			addDishToResavtion(newResavtion);
+//		}
+//	}
+//
+//	private void endOfMeal(int index) {
+////		int index = findTableIndexByNum(tableNum);
+//		double totalPrice = tables.get(index).getReservation().getTotalPrice();
+//		this.shiftCash += totalPrice;
+//		System.out.println("the total price of table " + tables.get(index).getTableNumber() + " is " + totalPrice);
+//		tables.get(index).cleanTable();
+//	}
 }

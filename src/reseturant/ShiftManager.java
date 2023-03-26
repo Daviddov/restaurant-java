@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class ShiftManager extends ManagerialPerson {
 	private ArrayList<Table> tables = new ArrayList<Table>();
-	private ArrayList<Workers> shfitWorkers;
+//	private ArrayList<Workers> shiftWorkers;
 	private int tablesForWaiter = 4;
 
 	public ShiftManager(int salary, String name) {
@@ -14,52 +14,85 @@ public class ShiftManager extends ManagerialPerson {
 
 	}
 
+	public void shfitManegerMenu(ArrayList<Workers> shiftWorkers) {
+		System.out.println(" 1. assign wiater to table  \n 2.exit");
+		Scanner in = new Scanner(System.in);
+		int input = in.nextInt();
+		handleShfitManegerChois(input, shiftWorkers);
+	}
+
+	private void handleShfitManegerChois(int input, ArrayList<Workers> shiftWorkers) {
+		Scanner in = new Scanner(System.in);
+		switch (input) {
+		case 1: {
+			Waiter waiter = chooseWaiter(shiftWorkers);
+			printTables();
+			Table table = getTableByNumber();
+			assignWaiterToTable(waiter, table);
+
+			shfitManegerMenu(shiftWorkers);
+			break;
+		}
+		case 2: {
+			//exit
+			break;
+		}
+		default:
+			shfitManegerMenu(shiftWorkers);
+		}
+	}
 	
-//error -->
-//	public void waiterToTableByName() { 
-//		Scanner in = new Scanner(System.in);
-//// wiater to table
-//		for (int i = 0; i < shfitWorkers.size(); i++) {
-//			if(shfitWorkers.get(i) instanceof Waiter) {
-//				System.out.println(shfitWorkers.get(i).getName());
+	private Waiter chooseWaiter(ArrayList<Workers> shiftWorkers) {
+		printWaiters(shiftWorkers);
+		Scanner in = new Scanner(System.in);
+		System.out.println("select waiter");
+		int waiterNum = in.nextInt();
+		return (Waiter) shiftWorkers.get(waiterNum);
+	}
+	
+	private void printWaiters(ArrayList<Workers> shiftWorkers) {
+		for (int i = 0; i < shiftWorkers.size(); i++) {
+			if (shiftWorkers.get(i) instanceof Waiter) {
+				System.out.println(i + ". " + shiftWorkers.get(i).getName());
+			}
+		}
+	}
+	
+	private Table getTableByNumber() {
+		Scanner in = new Scanner(System.in);
+		System.out.println("select table");
+		int tableNum = in.nextInt();
+		return tables.get(tableNum);
+	}
+
+	private void printTables() {
+		for (int i = 0; i < tables.size(); i++) {
+			System.out.println(i + ". table " + tables.get(i).getTableNumber());
+		}
+	}
+	
+//	private Waiter lookeForWaiter(ArrayList<Workers> shiftWorkers, String waiterName) {
+//		for (int i = 0; i < shiftWorkers.size(); i++) {
+//			if(shiftWorkers.get(i).getName() == waiterName ) {
+//				return (Waiter) shiftWorkers.get(i);
 //			}
 //		}
-//			System.out.println("enter the waiter name");
-//			String waiterName = in.nextLine();
-//			System.out.println("enter table number");
-//			for (int i = 0; i < tables.size(); i++) {
-//					System.out.println(tables.get(i).getTableNumber());
-//			}
-//			int tableNum = in.nextInt();
-//			Waiter waiter = lookeForWaiter(waiterName);
-//			Table table = lookForTable(tableNum);
-//			assignWaiterToTable(waiter, table);
-//			System.out.println("Done");
-//			
+//		return null;
 //	}
-	
-	private Waiter lookeForWaiter(String waiterName) {
-		for (int i = 0; i < shfitWorkers.size(); i++) {
-			if(shfitWorkers.get(i).getName() == waiterName ) {
-				return (Waiter) shfitWorkers.get(i);
-			}
-		}
-		return null;
-	}
-	
-	private Table lookForTable(int tableNum) {
-		for (int i = 0; i < tables.size(); i++) {
-			if(tables.get(i).getTableNumber() == tableNum ) {
-				return  tables.get(i);
-			}
-		}
-		return null;
-	}
+//	
+//	private Table lookForTable(int tableNum) {
+//		for (int i = 0; i < tables.size(); i++) {
+//			if(tables.get(i).getTableNumber() == tableNum ) {
+//				return  tables.get(i);
+//			}
+//		}
+//		return null;
+//	}
 	
 	public void assignWorkersShift(ArrayList<Workers> workers, ArrayList<Workers> shiftWorkers, int cookers,
 			int waiters, ArrayList<Table> tables) {
 		this.tables = tables;
-		this.setShfitWorkers(shiftWorkers);
+//		this.setShfitWorkers(shiftWorkers);
 
 		// add cookers to the shift
 		for (int i = 0; i < cookers; i++) {
@@ -122,12 +155,5 @@ public class ShiftManager extends ManagerialPerson {
 		System.out.println("assign waiter " + waiter.getName() + " to table " + table.getTableNumber());
 	}
 
-	public ArrayList<Workers> getShfitWorkers() {
-		return shfitWorkers;
-	}
-
-	public void setShfitWorkers(ArrayList<Workers> shiftWorkers) {
-		this.shfitWorkers = shiftWorkers;
-	}
 
 }
