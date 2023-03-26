@@ -10,7 +10,7 @@ public class Restaurant {
 	private String resetName;
 	int workersCount = 0;
 	private double restaurantCash = 0;
-	private ArrayList<Workers> workers = new ArrayList<Workers>();
+	private ArrayList<Worker> workers = new ArrayList<Worker>();
 	private ArrayList<Table> tables = new ArrayList<Table>();
 	private Menu menu;
 	private Manager reseturantManeger;

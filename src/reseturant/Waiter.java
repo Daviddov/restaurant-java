@@ -1,181 +1,224 @@
 package reseturant;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 
-public class Waiter extends Workers {
-	private ArrayList<Dish> newResavtion = new ArrayList<Dish>();
-	public Waiter(int salary, String name) {
-		super(salary, name);
+public class Waiter extends Worker {
+	private boolean hasCustomers;
+	  private List<Dish> newReservation = new ArrayList<>();
+	    public Waiter(int salary, String name) {
+	        super(salary, name);
+	        this.setHasCustomers(false);
+	    }
 
-	}
+	    public void waiterMenu(List<Table> tables, Menu menu, Queue<Reservation> allReservations, List<Reservation> readyToTake, double shiftCash) {
+	        Scanner scanner = new Scanner(System.in);
+	        if (hasCustomers(tables)) {
+	            System.out.println(
+	                "1. Make a reservation\n" +
+	                "2. Show ready dishes\n" +
+	                "3. Take dishes to table\n" +
+	                "4. End diner\n" +
+	                "5. Exit"
+	            );
+	            int input = scanner.nextInt();
+	            handleWaiterChoice(input, tables, menu, allReservations, readyToTake, shiftCash);
+	        } else {
+	            System.out.println("No customers at your tables.");
+	        }
+	    }
+	    
+	    public boolean hasCustomers(List<Table> tables) {
+	        for (Table table : tables) {
+	            if (!table.isAvailable() &&table.getWaiter().getName().equals(this.getName()) ) {
+	                return true;
+	            }
+	        }
+	       
+	        return false;
+	    }
 
-	public void waiterMenu(ArrayList<Table> tables, Menu menu, Queue<Reservation> allReservations, ArrayList<Reservation> radyToTake, double shiftCash) {
-//		Waiter waiter = chooseWaiter();
-		Scanner in = new Scanner(System.in);
-		if (haveSittingCostumer(this.getName(), tables)) {
-			System.out.println(
-					" 1. make resavetion \n 2.show rady dishes \n 3. take dishes to table \n 4.end diner \n 5. exit");
-			int input = in.nextInt();
-			handleWaiterChois( input,  tables,  menu, allReservations, radyToTake, shiftCash);
-		} else {
-			//exit
-		}
-	}
+	    private void handleWaiterChoice(int input, List<Table> tables, Menu menu, Queue<Reservation> allReservations, List<Reservation> readyToTake, double shiftCash) {
+	        switch (input) {
+	            case 1:
+	                printTakenWaiterTables(tables);
+	                int tableNum = chooseTable(tables.size());
+	                showMenu(menu);
+	                makeReservation(tableNum, allReservations, newReservation, tables, menu);
+	                waiterMenu(tables, menu, allReservations, readyToTake, shiftCash);
+	                break;
+	            case 2:
+	                printReadyDishes(tables, readyToTake);
+	                waiterMenu(tables, menu, allReservations, readyToTake, shiftCash);
+	                break;
+	            case 3:
+	                takeReadyDishesToTable(readyToTake, tables);
+	                waiterMenu(tables, menu, allReservations, readyToTake, shiftCash);
+	                break;
+	            case 4:
+	                printTakenWaiterTables(tables);
+	                tableNum = chooseTable(tables.size());
+	                endOfMeal(tableNum, tables, shiftCash);
+	                waiterMenu(tables, menu, allReservations, readyToTake, shiftCash);
+	                System.out.println("Table " + tableNum + " has finished.");
+	                break;
+	            case 5:
+	                //exit
+	                break;
+	            default:
+	                waiterMenu(tables, menu, allReservations, readyToTake, shiftCash);
+	        }
+	    }
 
+	    private void makeReservation(int tableNum, Queue<Reservation> allReservations, List<Dish> newReservation, List<Table> tables, Menu menu) {
+	        addDishToReservation((ArrayList<Dish>) newReservation, menu);
+	        Waiter tableWaiter = tables.get(tableNum).getWaiter();
+	        tableWaiter.takeReservation(tables.get(tableNum), (ArrayList<Dish>) newReservation);
+	        allReservations.add(tables.get(tableNum).getReservation());
+	    }
+	    private void addDishToReservation(ArrayList<Dish> newReservation, Menu menu) {
+	        Scanner in = new Scanner(System.in);
 
-	private boolean haveSittingCostumer(String waiterName , ArrayList<Table> tables) {
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i).getWaiter().getName() == waiterName && !tables.get(i).isAvailable()) {
-				return true;
-			}
-		}
-		System.out.println("no costumers in your tables");
-		return false;
-	}
-	
-	private void handleWaiterChois(int input, ArrayList<Table> tables, Menu menu, Queue<Reservation> allReservations, ArrayList<Reservation> radyToTake,double shiftCash) {
-		Scanner in = new Scanner(System.in);
-		switch (input) {
-		case 1: {
+	        while (true) {
+	            System.out.println("Choose a dish:");
+	            showMenu(menu);
 
-			printTakenWaiterTables( tables, menu);
-			int tableNum = chooseTable();
-			showMenu(menu);
-			makeRasvation(tableNum, allReservations, newResavtion, tables , menu);
-			waiterMenu(tables, menu, allReservations, radyToTake, shiftCash);
-			break;
-		}
-		case 2: {
-			printRadyDishes( tables, radyToTake);
-			waiterMenu(tables, menu, allReservations, radyToTake, shiftCash);
-			break;
-		}
-		case 3: {
-			takeRadyDishesToTable(radyToTake, tables);
-			waiterMenu(tables, menu, allReservations, radyToTake, shiftCash);
-			break;
-		}
-		case 4: {
-			printTakenWaiterTables(tables, menu);
-			int tableNum = chooseTable();
-			endOfMeal(tableNum, tables, shiftCash);
-			waiterMenu(tables, menu, allReservations, radyToTake, shiftCash);
-			System.out.println("table number " + tableNum + " finish");
-			break;
-		}
-		case 5: {
-			//exit
-			break;
-		}
-		default:
-			waiterMenu(tables, menu, allReservations, radyToTake, shiftCash);
-		}
-	}
-
-	private void makeRasvation(int tableNum , Queue<Reservation> allReservations, ArrayList<Dish> newResavtion, ArrayList<Table> tables ,Menu menu) {
-
-		addDishToResavtion(newResavtion, menu);
-		Waiter tableWaiter = tables.get(tableNum).getWaiter();
-		tableWaiter.takeReservation(tables.get(tableNum), newResavtion);
-		allReservations.add(tables.get(tableNum).getReservation());
-	}
-	
-	private void addDishToResavtion(ArrayList<Dish> newResavtion, Menu menu) {
-		System.out.println("choose a dish");
-		Scanner in = new Scanner(System.in);
-		int input = in.nextInt();
-		newResavtion.add((Dish) menu.getDishs().toArray()[input]);
-
-		System.out.println("Do you want another one \n 1. Yes \n 2. No");
-		input = in.nextInt();
-		if (input == 1) {
-			addDishToResavtion(newResavtion, menu);
-		}
-	}
-	private void showMenu(Menu menu) {
-		ArrayList<Dish> menuDishs = menu.getDishs();
-		for (int i = 0; i < menuDishs.size(); i++) {
-			System.out.println(i + "." + menuDishs.get(i).getName());
-		}
-	}
-	
-	private int chooseTable() {
-		Scanner in = new Scanner(System.in);
-		System.out.println("select table");
-		int tableNum = in.nextInt();
-		return tableNum;
-	}
-	
-
-	private void printRadyDishes( ArrayList<Table> tables, ArrayList<Reservation> radyToTake) {
-		for (int i = 0; i < radyToTake.size(); i++) {
-			int tableNum = radyToTake.get(i).getTableNum();
-			String nameOfTableWaiter = tables.get(tableNum).getWaiter().getName();
-			if (nameOfTableWaiter == this.getName()) {
-				ArrayList<Dish> radyDishesToTake = new ArrayList<Dish>();
-				radyDishesToTake = radyToTake.get(i).getDishes();
-
-				for (int j = 0; j < radyDishesToTake.size(); j++) {
-					System.out.println(
-							radyDishesToTake.get(j).getName() + " for table " + radyToTake.get(i).getTableNum());
-
+	            int input = in.nextInt();
+	            Dish dish =menu.getDishs().get(input);
+	            System.out.println("How many servings of "+ dish.getName()+" do you want?:");
+	            int amount = in.nextInt();
+	            for (int i = 0; i < amount; i++) {
+	            	newReservation.add(dish);
+	            	System.out.println(dish.getName() +" add to your reservation");
 				}
-			}
-		}
-	}
-	
-	private void printTakenWaiterTables( ArrayList<Table> tables, Menu menu) {
-		for (int i = 0; i < tables.size(); i++) {
-			if (tables.get(i).getWaiter().getName() == this.getName() && !tables.get(i).isAvailable()) {
-				System.out.println(i + ". table " + tables.get(i).getTableNumber());
-			}
-		}
-	}
-	public void takeReservation(Table table, ArrayList<Dish> newReservation) {
-		Reservation reservation = table.getReservation();
-		ArrayList<Dish> reservationDishes = reservation.getDishes();
-		for (int i = 0; i < newReservation.size(); i++) {
-			Dish newDish = newReservation.get(i);
-			reservationDishes.add(newDish);
-		}
-		// Update the reservation with the new array of dishes
-		reservation.setDishes(reservationDishes);
-	}
 
-	private void takeRadyDishesToTable(ArrayList<Reservation> radyToTake,  ArrayList<Table> tables) {
-		for (int i = 0; i < radyToTake.size(); i++) {
-			int tableNum = radyToTake.get(i).getTableNum();
-			String nameOfTableWaiter = tables.get(tableNum).getWaiter().getName();
-			if (nameOfTableWaiter == this.getName()) {
-				ArrayList<Dish> radyDishesToTake = new ArrayList<Dish>();
-				radyDishesToTake = radyToTake.get(i).getDishes();
+	            System.out.println("Do you want another one?\n1. Yes\n2. No");
+	            input = in.nextInt();
+	            if (input != 1) {
+	                break;
+	            }
+	        }
+	    }
 
-				for (int j = 0; j < radyDishesToTake.size(); j++) {
-					radyDishesToTake.get(j).setDone(true);
-					System.out.println(
-							radyDishesToTake.get(j).getName() + " taken to table " + radyToTake.get(i).getTableNum());
-				}
-			}
-			radyToTake.remove(i);
+	    private void showMenu(Menu menu) {
+	        ArrayList<Dish> menuDishes = menu.getDishs();
+
+	        for (int i = 0; i < menuDishes.size(); i++) {
+	            System.out.println(i + ". " + menuDishes.get(i).getName());
+	        }
+	    }
+
+	    private int chooseTable(int numOfTables) {
+	        Scanner in = new Scanner(System.in);
+
+	        while (true) {
+	            System.out.println("Select a table:");
+	            int tableNum = in.nextInt();
+
+	            if (tableNum >= 0 && tableNum < numOfTables) {
+	                return tableNum;
+	            } else {
+	                System.out.println("Invalid table number.");
+	            }
+	        }
+	    }
+
+	    private void printReadyDishes(List<Table> tables, List<Reservation> readyToServe) {
+	        for (Reservation reservation : readyToServe) {
+	            int tableNum = reservation.getTableNum();
+	            String waiterName = tables.get(tableNum).getWaiter().getName();
+
+	            if (waiterName.equals(this.getName())) {
+	                ArrayList<Dish> readyDishes = reservation.getDishes();
+
+	                for (Dish dish : readyDishes) {
+	                    if (dish.isRady()) {
+	                        System.out.println(dish.getName() + " for table " + tableNum);
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    private void printTakenWaiterTables(List<Table> tables) {
+	        for (int i = 0; i < tables.size(); i++) {
+	            Table table = tables.get(i);
+
+	            if (table.getWaiter().getName().equals(this.getName()) && !table.isAvailable()) {
+	                System.out.println(i + ". Table " + table.getTableNumber());
+	            }
+	        }
+	    }
+
+	    public void takeReservation(Table table, ArrayList<Dish> newReservation) {
+	        Reservation reservation = table.getReservation();
+	        ArrayList<Dish> reservationDishes = reservation.getDishes();
+	        reservationDishes.addAll(newReservation);
+	        reservation.setDishes(reservationDishes);
+	    }
+
+	    private void takeReadyDishesToTable(List<Reservation> readyToServe, List<Table> tables) {
+	        for (Reservation reservation : readyToServe) {
+	            int tableNum = reservation.getTableNum();
+	            String waiterName = tables.get(tableNum).getWaiter().getName();
+
+	            if (waiterName.equals(this.getName())) {
+	                ArrayList<Dish> readyDishes = reservation.getDishes();
+
+	                for (Dish dish : readyDishes) {
+	                    if (dish.isRady()) {
+	                        dish.setDone(true);
+	                        System.out.println(dish.getName() + " taken to table " + tableNum);
+	                    }
+	                }
+
+	                readyToServe.remove(reservation);
+	            }
+	        }
+	    }
+
+	    public void serveDishes(Reservation reservation) {
+	        ArrayList<Dish> dishes = reservation.getDishes();
+
+	        for (Dish dish : dishes) {
+	            if (dish.isRady() && !dish.isDone()) {
+	                dish.setDone(true);
+	            }
+	        }
+	    }
+	    
+	    private int findTableIndexByNum(int tableNum, List<Table> tables) {
+	        for (int i = 0; i < tables.size(); i++) {
+	            if (tables.get(i).getTableNumber() == tableNum) {
+	                return i;
+	            }
+	        }
+	        return -1; // table not found
+	    }
+	    
+	    private void endOfMeal(int tableNum, List<Table> tables, double shiftCash) {
+	        int index = findTableIndexByNum(tableNum, tables);
+	        if (index == -1) {
+	            System.out.println("Table " + tableNum + " not found.");
+	            return;
+	        }
+	        
+	        double totalPrice = tables.get(index).getReservation().getTotalPrice();
+	        shiftCash += totalPrice;
+	        System.out.println("The total price of table " + tableNum + " is " + totalPrice);
+	        tables.get(index).cleanTable();
+	    }
+
+		public boolean isHasCustomers() {
+			return hasCustomers;
 		}
-	}
-	public void serveDishs(Reservation reservation) {
-		ArrayList<Dish> dishResavtion = reservation.getDishes();
-		for (int i = 0; i < dishResavtion.size(); i++) {
-			if (!dishResavtion.get(i).isDone() && dishResavtion.get(i).isRady()) {
-				dishResavtion.get(i).setRady(true);
-				dishResavtion.get(i).setDone(true);
-			}
+
+		public void setHasCustomers(boolean hasCustomers) {
+			this.hasCustomers = hasCustomers;
 		}
-	}
+
 	
-	private void endOfMeal(int index,  ArrayList<Table> tables, double shiftCash) {
-//		int index = findTableIndexByNum(tableNum);
-		double totalPrice = tables.get(index).getReservation().getTotalPrice();
-		shiftCash += totalPrice;
-		System.out.println("the total price of table " + tables.get(index).getTableNumber() + " is " + totalPrice);
-		tables.get(index).cleanTable();
-	}
+
 }

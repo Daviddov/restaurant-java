@@ -1,35 +1,36 @@
 package reseturant;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 
-public class Cooker extends Workers {
+public class Cooker extends Worker {
 
 	public Cooker(int salary, String name) {
 		super(salary, name);
 
 	}
 
-	public void cookerMenu(Queue<Reservation> allReservations, ArrayList<Reservation> radyToTake) {
+	public void cookerMenu(Queue<Reservation> allReservations, List<Reservation> readyToTake) {
 		Scanner in = new Scanner(System.in);
 		System.out.println(" 1. show resavetion \n 2.cook dishes \n 3. exit");
 		int input = in.nextInt();
-		handleCookerChois(input, allReservations, radyToTake);
+		handleCookerChois(input, allReservations, readyToTake);
 	}
 
-	private void handleCookerChois(int input, Queue<Reservation> allReservations, ArrayList<Reservation> radyToTake) {
+	private void handleCookerChois(int input, Queue<Reservation> allReservations, List<Reservation> readyToTake) {
 		Scanner in = new Scanner(System.in);
 		switch (input) {
 		case 1: {
 			showDishesResevation(allReservations.peek().getDishes());
-			cookerMenu(allReservations, radyToTake);
+			cookerMenu(allReservations, readyToTake);
 			break;
 		}
 		case 2: {
 			makeTheBon(allReservations.peek());
-			radyToTake.add(allReservations.remove());
-			cookerMenu(allReservations, radyToTake);
+			readyToTake.add(allReservations.remove());
+			cookerMenu(allReservations, readyToTake);
 			break;
 		}
 		case 3: {
@@ -37,7 +38,7 @@ public class Cooker extends Workers {
 			break;
 		}
 		default:
-			cookerMenu(allReservations, radyToTake);
+			cookerMenu(allReservations, readyToTake);
 		}
 	}
 

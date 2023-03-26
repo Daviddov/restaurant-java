@@ -2,35 +2,44 @@ package reseturant;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ShiftManager extends ManagerialPerson {
-	private ArrayList<Table> tables = new ArrayList<Table>();
+//	private ArrayList<Table> tables = new ArrayList<Table>();
 //	private ArrayList<Workers> shiftWorkers;
-	private int tablesForWaiter = 4;
+	private int maxTablesPerWaiter = 4;
 
 	public ShiftManager(int salary, String name) {
 		super(salary, name);
 
 	}
-
-	public void shfitManegerMenu(ArrayList<Workers> shiftWorkers) {
+	
+	public void shiftManagerMenu(List<Worker> shiftWorkers, List<Table> tables) {
 		System.out.println(" 1. assign wiater to table  \n 2.exit");
 		Scanner in = new Scanner(System.in);
 		int input = in.nextInt();
-		handleShfitManegerChois(input, shiftWorkers);
+		handleShfitManegerChois(input, shiftWorkers, tables);
+		
 	}
+	
+//	public void shfitManegerMenu(List<Worker> shiftWorkers, ArrayList<Table> tables) {
+//		System.out.println(" 1. assign wiater to table  \n 2.exit");
+//		Scanner in = new Scanner(System.in);
+//		int input = in.nextInt();
+//		handleShfitManegerChois(input, shiftWorkers, tables);
+//	}
 
-	private void handleShfitManegerChois(int input, ArrayList<Workers> shiftWorkers) {
+	private void handleShfitManegerChois(int input, List<Worker> shiftWorkers, List<Table> tables) {
 		Scanner in = new Scanner(System.in);
 		switch (input) {
 		case 1: {
 			Waiter waiter = chooseWaiter(shiftWorkers);
-			printTables();
-			Table table = getTableByNumber();
+			printTables(tables);
+			Table table = getTableByNumber(tables);
 			assignWaiterToTable(waiter, table);
 
-			shfitManegerMenu(shiftWorkers);
+			shiftManagerMenu(shiftWorkers, tables);
 			break;
 		}
 		case 2: {
@@ -38,11 +47,12 @@ public class ShiftManager extends ManagerialPerson {
 			break;
 		}
 		default:
-			shfitManegerMenu(shiftWorkers);
+			shiftManagerMenu(shiftWorkers, tables);
 		}
+		
 	}
 	
-	private Waiter chooseWaiter(ArrayList<Workers> shiftWorkers) {
+	private Waiter chooseWaiter(List<Worker> shiftWorkers) {
 		printWaiters(shiftWorkers);
 		Scanner in = new Scanner(System.in);
 		System.out.println("select waiter");
@@ -50,7 +60,7 @@ public class ShiftManager extends ManagerialPerson {
 		return (Waiter) shiftWorkers.get(waiterNum);
 	}
 	
-	private void printWaiters(ArrayList<Workers> shiftWorkers) {
+	private void printWaiters(List<Worker> shiftWorkers) {
 		for (int i = 0; i < shiftWorkers.size(); i++) {
 			if (shiftWorkers.get(i) instanceof Waiter) {
 				System.out.println(i + ". " + shiftWorkers.get(i).getName());
@@ -58,65 +68,51 @@ public class ShiftManager extends ManagerialPerson {
 		}
 	}
 	
-	private Table getTableByNumber() {
+	private Table getTableByNumber(List<Table> tables) {
 		Scanner in = new Scanner(System.in);
 		System.out.println("select table");
 		int tableNum = in.nextInt();
 		return tables.get(tableNum);
 	}
 
-	private void printTables() {
+	private void printTables(List<Table> tables) {
 		for (int i = 0; i < tables.size(); i++) {
 			System.out.println(i + ". table " + tables.get(i).getTableNumber());
 		}
 	}
 	
-//	private Waiter lookeForWaiter(ArrayList<Workers> shiftWorkers, String waiterName) {
-//		for (int i = 0; i < shiftWorkers.size(); i++) {
-//			if(shiftWorkers.get(i).getName() == waiterName ) {
-//				return (Waiter) shiftWorkers.get(i);
-//			}
-//		}
-//		return null;
-//	}
-//	
-//	private Table lookForTable(int tableNum) {
-//		for (int i = 0; i < tables.size(); i++) {
-//			if(tables.get(i).getTableNumber() == tableNum ) {
-//				return  tables.get(i);
-//			}
-//		}
-//		return null;
-//	}
-	
-	public void assignWorkersShift(ArrayList<Workers> workers, ArrayList<Workers> shiftWorkers, int cookers,
-			int waiters, ArrayList<Table> tables) {
-		this.tables = tables;
-//		this.setShfitWorkers(shiftWorkers);
+	public void assignWorkersShift(List<Worker> workers, List<Worker> shiftWorkers) {
 
 		// add cookers to the shift
-		for (int i = 0; i < cookers; i++) {
-			for (int j = 0; j < workers.size(); j++) {
-				if (workers.get(j).isAvailable() && workers.get(j) instanceof Cooker) {
-					shiftWorkers.add(workers.get(j));
-					workers.get(j).setAvailable(false);
-					System.out.println("set cooker");
-				}
-			}
+		assignCookersToShift(shiftWorkers, workers);
+		
 			// add waiters to the shift
-			for (int j = 0; j < workers.size(); j++) {
-				if (workers.get(j).isAvailable() && workers.get(j) instanceof Waiter) {
-					shiftWorkers.add(workers.get(j));
-					workers.get(j).setAvailable(false);
-					System.out.println("set waiter");
-
-				}
-			}
-		}
-
+		assignWaitersToShift(shiftWorkers, workers);
 	}
 
-	public void assignTablesWaiters(ArrayList<Workers> shiftWorkers) {
+	private void assignCookersToShift(List<Worker> workers, List<Worker> shiftWorkers) {
+		for (int j = 0; j < workers.size(); j++) {
+			if (workers.get(j).isAvailable() && workers.get(j) instanceof Cooker) {
+				workers.get(j).setAvailable(false);
+				shiftWorkers.add(workers.get(j));
+				System.out.println("set cooker "+ workers.get(j).getName());
+
+			}
+		}
+	}
+	private void assignWaitersToShift(List<Worker> workers, List<Worker> shiftWorkers) {
+		
+		for (int j = 0; j < workers.size(); j++) {
+			if (workers.get(j).isAvailable() && workers.get(j) instanceof Waiter) {
+				workers.get(j).setAvailable(false);
+				shiftWorkers.add(workers.get(j));
+				System.out.println("set waiter "+ workers.get(j).getName());
+				
+			}
+		}
+	}
+	
+	public void assignTablesWaiters(List<Worker> shiftWorkers, List<Table> tables ) {
 		int numberOfTables = tables.size();
 		int tablesAssigned = 0;
 
@@ -126,13 +122,13 @@ public class ShiftManager extends ManagerialPerson {
 			}
 			if (shiftWorkers.get(i) instanceof Waiter) {
 				Waiter waiter = (Waiter) shiftWorkers.get(i);
-				TablesForWaiter(waiter, tablesForWaiter);
+				TablesForWaiter(waiter, maxTablesPerWaiter, tables);
 			}
 
 		}
 	}
 
-	public void TablesForWaiter(Waiter waiter, int TablesForWaiter) {
+	public void TablesForWaiter(Waiter waiter, int TablesForWaiter, List<Table> tables) {
 		for (int k = 0; k < TablesForWaiter; k++) {
 			for (int j = 0; j < tables.size(); j++) {
 				if (!isWaiterToTable(tables.get(j))) {
@@ -154,6 +150,10 @@ public class ShiftManager extends ManagerialPerson {
 		table.setWaiter(waiter);
 		System.out.println("assign waiter " + waiter.getName() + " to table " + table.getTableNumber());
 	}
+
+
+
+
 
 
 }

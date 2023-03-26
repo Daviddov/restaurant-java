@@ -5,11 +5,11 @@ import java.util.Scanner;
 
 public class Manager extends ManagerialPerson{
 	private Shift shift;
-	private ArrayList<Workers> workers = new ArrayList<Workers>();
+	private ArrayList<Worker> workers = new ArrayList<Worker>();
 	private ArrayList<Table> tables = new ArrayList<Table>();
 	private Menu menu;
 	
-	public Manager(int salary, String name, Menu menu, ArrayList<Workers> workers, ArrayList<Table> tables ) {
+	public Manager(int salary, String name, Menu menu, ArrayList<Worker> workers, ArrayList<Table> tables ) {
 		super(salary, name);
 		this.workers =workers;
 		this.menu = menu;
